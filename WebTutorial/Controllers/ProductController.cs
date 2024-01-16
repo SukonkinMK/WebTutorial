@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using WebTutorial.Abstractions;
 using WebTutorial.Models;
+using WebTutorial.Models.DTO;
 
 namespace WebTutorial.Controllers
 {
@@ -7,108 +9,39 @@ namespace WebTutorial.Controllers
     [Route("[controller]")]
     public class ProductController : Controller
     {
-        [HttpGet("getProduct")]
+        private readonly IStoreRepository _storeRepository;
+
+        public ProductController(IStoreRepository storeRepository)
+        {
+            _storeRepository = storeRepository;
+        }
+
+        [HttpGet("get_products")]
         public IActionResult GetProducts()
         {
-            try
-            {
-                using (var context = new StoreContext())
-                {
-                    var products = context.Products.Select(x => new Product()
-                    {
-                        Id = x.Id,
-                        Name = x.Name,
-                        Description = x.Description
-                    });
-                    return Ok(products.ToList());
-                }
-            }
-            catch
-            {
-                return StatusCode(500);
-            }
+            var products = _storeRepository.GetProducts();
+            return Ok(products);
         }
 
-        [HttpPost("addProduct")]
-        public IActionResult AddProduct([FromQuery] string name, string description, string categoryName, int price)
+        [HttpPost("add_product")]
+        public IActionResult AddProduct([FromBody] ProbuctDto productDto)
         {
-            try
-            {
-                using (var context = new StoreContext())
-                {
-                    Category category = context.Categories.FirstOrDefault(x => x.Name.ToLower().Equals(categoryName.ToLower()));
-                    if (category == null)
-                    {
-                        category = new Category() { Name = categoryName };
-                        context.Categories.Add(category);
-                        context.SaveChanges();
-                    }                    
-
-                    if (!context.Products.Any(x => x.Name.ToLower().Equals(name.ToLower())) && category != null)
-                    {
-                        var product = new Product() { Name = name, Description = description, Category = category, CategoryId = category.Id, Price = price };
-                        context.Add(product);
-                        context.SaveChanges();
-                        return Ok(product.Id);
-                    }
-                    else
-                        return StatusCode(409);
-
-                }
-            }
-            catch
-            {
-                return StatusCode(500);
-            }
+            var result = _storeRepository.AddProduct(productDto);
+            return Ok(result);
         }
 
-        [HttpDelete("delProduct")]
-        public IActionResult DeleteProduct([FromQuery] string name)
+        [HttpDelete("del_product")]
+        public IActionResult DeleteProduct([FromBody] ProbuctDto productDto)
         {
-            try
-            {
-                using (var context = new StoreContext())
-                {
-                    var product = context.Products.FirstOrDefault(x => x.Name.ToLower().Equals(name.ToLower()));
-                    if (product != null)
-                    {
-                        context.Products.Remove(product);
-                        context.SaveChanges();
-                        return Ok(product.Id);
-                    }
-                    else
-                        return StatusCode(409);
-
-                }
-            }
-            catch
-            {
-                return StatusCode(500);
-            }
+            var result = _storeRepository.DeleteProduct(productDto);
+            return Ok(result);
         }
 
         [HttpPatch("addProductPrice")]
-        public IActionResult AddProductPrice([FromQuery] string name, int price)
+        public IActionResult AddProductPrice([FromBody] ProbuctDto productDto)
         {
-            try
-            {
-                using (var context = new StoreContext())
-                {
-                    var product = context.Products.FirstOrDefault(x => x.Name.ToLower().Equals(name.ToLower()));
-                    if (product != null)
-                    {
-                        product.Price = price;
-                        context.SaveChanges();
-                        return Ok(product.Price);
-                    }
-                    else
-                        return StatusCode(409);
-                }
-            }
-            catch
-            {
-                return StatusCode(500);
-            }
+            var result = _storeRepository.UpdatePriceProduct(productDto);
+            return Ok(result);
         }
     }
 }

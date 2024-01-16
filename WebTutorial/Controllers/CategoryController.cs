@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using WebTutorial.Abstractions;
 using WebTutorial.Models;
+using WebTutorial.Models.DTO;
 
 namespace WebTutorial.Controllers
 {
@@ -7,53 +9,32 @@ namespace WebTutorial.Controllers
     [Route("[controller]")]
     public class CategoryController : Controller
     {
-        [HttpPost("addCategory")]
-        public IActionResult AddCategory([FromQuery] string categoryName, string catgoryDescription)
-        {
-            try
-            {
-                using (var context = new StoreContext())
-                {
+        private readonly IStoreRepository _storeRepository;
 
-                    if (!context.Categories.Any(x => x.Name.ToLower().Equals(categoryName.ToLower())))
-                    {
-                        Category category = new Category() { Name = categoryName, Description = catgoryDescription };
-                        context.Categories.Add(category);
-                        context.SaveChanges();
-                        return Ok(category.Id);
-                    }
-                    else
-                        return StatusCode(409);
-                }
-            }
-            catch
-            {
-                return StatusCode(500);
-            }
+        public CategoryController(IStoreRepository storeRepository)
+        {
+            _storeRepository = storeRepository;
         }
 
-        [HttpDelete("delCategory")]
-        public IActionResult DeleteCategory([FromQuery] string name)
+        [HttpPost("add_category")]
+        public IActionResult AddCategory([FromBody] CategoryDto category)
         {
-            try
-            {
-                using (var context = new StoreContext())
-                {
-                    var category = context.Categories.FirstOrDefault(x => x.Name.ToLower().Equals(name.ToLower()));
-                    if (category != null)
-                    {
-                        context.Categories.Remove(category);
-                        context.SaveChanges();
-                        return Ok(category.Id);
-                    }
-                    else
-                        return StatusCode(409);
-                }
-            }
-            catch
-            {
-                return StatusCode(500);
-            }
+            var result = _storeRepository.AddCategory(category);
+            return Ok(result);
+        }
+
+        [HttpDelete("del_category")]
+        public IActionResult DeleteCategory([FromBody] CategoryDto category)
+        {
+            var result = _storeRepository.DeleteCategory(category);
+            return Ok(result);
+        }
+
+        [HttpGet("get_categories")]
+        public IActionResult GetCategories()
+        {
+            var categories = _storeRepository.GetCategories();
+            return Ok(categories);
         }
     }
 }

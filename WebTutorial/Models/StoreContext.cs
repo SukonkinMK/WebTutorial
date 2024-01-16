@@ -8,7 +8,7 @@ namespace WebTutorial.Models
         public DbSet<Category> Categories { get; set; }
         public DbSet<Storage> Storages { get; set; }
 
-        public StoreContext() { }
+        public StoreContext(string connectionString) { }
 
         public StoreContext(DbContextOptions<StoreContext> options) : base(options) { }
 

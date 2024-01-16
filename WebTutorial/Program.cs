@@ -1,3 +1,8 @@
+using Autofac;
+using Autofac.Extensions.DependencyInjection;
+using WebTutorial.Abstractions;
+using WebTutorial.Repo;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -6,6 +11,15 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddAutoMapper(typeof(MappingProFile));
+
+builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
+builder.Host.ConfigureContainer<ContainerBuilder>(contaierBuilder =>
+{
+    contaierBuilder.RegisterType<StoreRepository>().As<IStoreRepository>();
+});
+// builder.Services.AddSingleton<IProductRepository,ProductRepository>();
+builder.Services.AddMemoryCache(o => o.TrackStatistics = true);
 
 var app = builder.Build();
 
