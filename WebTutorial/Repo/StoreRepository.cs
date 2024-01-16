@@ -11,23 +11,25 @@ namespace WebTutorial.Repo
     {
         private readonly IMapper _mapper;
         private readonly IMemoryCache _cache;
+        private StoreContext _context;
 
-        public StoreRepository(IMapper mapper, IMemoryCache cache)
+        public StoreRepository(IMapper mapper, IMemoryCache cache, StoreContext context)
         {
             _mapper = mapper;
             _cache = cache;
+            _context = context;
         }
 
         public int AddCategory(CategoryDto category)
         {
-            using(var context = new StoreContext())
+            using(_context)
             {
-                var entity = context.Categories.FirstOrDefault(x => x.Name.ToLower().Equals(category.Name.ToLower()));
+                var entity = _context.Categories.FirstOrDefault(x => x.Name.ToLower().Equals(category.Name.ToLower()));
                 if (entity == null)
                 {
                     entity = _mapper.Map<Category>(category);
-                    context.Categories.Add(entity);
-                    context.SaveChanges();
+                    _context.Categories.Add(entity);
+                    _context.SaveChanges();
                     _cache.Remove("groups");
                 }
                 return entity.Id;
@@ -36,13 +38,13 @@ namespace WebTutorial.Repo
 
         public int DeleteCategory(CategoryDto category)
         {
-            using (var context = new StoreContext())
+            using (_context)
             {
-                var entity = context.Categories.FirstOrDefault(x => x.Name.ToLower().Equals(category.Name.ToLower()));
+                var entity = _context.Categories.FirstOrDefault(x => x.Name.ToLower().Equals(category.Name.ToLower()));
                 if (entity != null)
                 {
-                    context.Categories.Remove(entity);
-                    context.SaveChanges();
+                    _context.Categories.Remove(entity);
+                    _context.SaveChanges();
                     _cache.Remove("groups");
                     return 1;
                 }
@@ -52,14 +54,14 @@ namespace WebTutorial.Repo
 
         public int AddProduct(ProbuctDto product)
         {
-            using (var context = new StoreContext())
+            using (_context)
             {
-                var entity = context.Products.FirstOrDefault(x => x.Name.ToLower().Equals(product.Name.ToLower()));
+                var entity = _context.Products.FirstOrDefault(x => x.Name.ToLower().Equals(product.Name.ToLower()));
                 if (entity == null)
                 {
                     entity = _mapper.Map<Product>(product);
-                    context.Products.Add(entity);
-                    context.SaveChanges();
+                    _context.Products.Add(entity);
+                    _context.SaveChanges();
                     _cache.Remove("products");
                 }
                 return entity.Id;
@@ -72,9 +74,9 @@ namespace WebTutorial.Repo
             {
                 return categories;
             }
-            using (var context = new StoreContext())
+            using (_context)
             {
-                var groupsList = context.Categories.Select(x => _mapper.Map<CategoryDto>(x)).ToList();
+                var groupsList = _context.Categories.Select(x => _mapper.Map<CategoryDto>(x)).ToList();
                 _cache.Set("groups", groupsList, TimeSpan.FromMinutes(30));
                 return groupsList;
             }
@@ -86,9 +88,9 @@ namespace WebTutorial.Repo
             {
                 return products;
             }
-            using (var context = new StoreContext())
+            using (_context)
             {
-                List<ProbuctDto> productList = context.Products.Select(x => _mapper.Map<ProbuctDto>(x)).ToList();
+                List<ProbuctDto> productList = _context.Products.Select(x => _mapper.Map<ProbuctDto>(x)).ToList();
                 _cache.Set("products", productList, TimeSpan.FromMinutes(30));
                 return productList;
             }
@@ -96,13 +98,13 @@ namespace WebTutorial.Repo
 
         public int DeleteProduct(ProbuctDto product)
         {
-            using (var context = new StoreContext())
+            using (_context)
             {
-                var entity = context.Products.FirstOrDefault(x => x.Name.ToLower().Equals(product.Name.ToLower()));
+                var entity = _context.Products.FirstOrDefault(x => x.Name.ToLower().Equals(product.Name.ToLower()));
                 if (entity != null)
                 {
-                    context.Products.Remove(entity);
-                    context.SaveChanges();
+                    _context.Products.Remove(entity);
+                    _context.SaveChanges();
                     _cache.Remove("products");
                     return 1;
                 }
@@ -112,13 +114,13 @@ namespace WebTutorial.Repo
 
         public int UpdatePriceProduct(ProbuctDto product)
         {
-            using (var context = new StoreContext())
+            using (_context)
             {
-                var entity = context.Products.FirstOrDefault(x => x.Name.ToLower().Equals(product.Name.ToLower()));
+                var entity = _context.Products.FirstOrDefault(x => x.Name.ToLower().Equals(product.Name.ToLower()));
                 if (entity != null)
                 {
                     entity.Price = product.Price;
-                    context.SaveChanges();
+                    _context.SaveChanges();
                     _cache.Remove("products");
                     return 1;
                 }
