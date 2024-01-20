@@ -8,14 +8,18 @@ namespace WebTutorial.Models
         public DbSet<Category> Categories { get; set; }
         public DbSet<Storage> Storages { get; set; }
 
-        public StoreContext() { }
+        private string _connectionString;
+
+        public StoreContext(string connectionString)
+        { 
+            _connectionString = connectionString;
+        }
 
         public StoreContext(DbContextOptions<StoreContext> options) : base(options) { }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(@"Server=.; Database=Store;Integrated Security=False;TrustServerCertificate=True; Trusted_Connection=True;")
-                .UseLazyLoadingProxies();
+            optionsBuilder.UseSqlServer(_connectionString).UseLazyLoadingProxies();
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
