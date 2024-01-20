@@ -21,6 +21,10 @@ builder.Host.ConfigureContainer<ContainerBuilder>(contaierBuilder =>
 {
     contaierBuilder.RegisterType<StoreRepository>().As<IStoreRepository>();
 });
+builder.Host.ConfigureContainer<ContainerBuilder>(contaierBuilder =>
+{
+    contaierBuilder.RegisterType<StorageRepository>().As<IStorageRepository>();
+});
 // builder.Services.AddSingleton<IProductRepository,ProductRepository>();
 builder.Services.AddMemoryCache(o => o.TrackStatistics = true);
 
