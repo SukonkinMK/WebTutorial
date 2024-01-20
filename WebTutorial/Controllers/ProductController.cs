@@ -53,7 +53,7 @@ namespace WebTutorial.Controllers
             var products = _storeRepository.GetProducts();
             var content = getCSVString(products);
             string filename = "productReport" + DateTime.Now.ToBinary().ToString()+ ".csv";
-            System.IO.File.WriteAllText(Path.Combine(Directory.GetCurrentDirectory(), "StaticFiles", filename), content);
+            System.IO.File.WriteAllText(System.IO.Path.Combine(Directory.GetCurrentDirectory(), "StaticFiles", filename), content);
             return Ok("https://"+Request.Host.ToString() + "/static/"+ filename);
         }
 
