@@ -40,11 +40,11 @@ builder.Services.AddGraphQLServer()
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
+//if (app.Environment.IsDevelopment())
+//{
     app.UseSwagger();
     app.UseSwaggerUI();
-}
+//}
 
 var staticFilesPath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "StaticFiles");
 Directory.CreateDirectory(staticFilesPath);
